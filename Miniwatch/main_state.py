@@ -8,36 +8,65 @@ import game_framework
 import title_state
 
 
-
 name = "MainState"
-
 boy = None
-grass = None
+monster = None
 font = None
+wall = None
+timer = 0
 
 
-
-class Grass:
+class Wall:
     def __init__(self):
-        self.image = load_image('grass.png')
+        self.image = load_image('Resource\MapTile\Ground_Tile1.png')
+        self.tilestate = [[0]*100 for i in range(100)]
 
     def draw(self):
-        self.image.draw(400, 30)
+        global boy
+        for x in range(25):
+            for y in range(19):
+                self.image.draw(x * 32 - boy.x, y * 32 - boy.y)
 
+    def enter(self):
+        open('tile.txt', 'r')
+        for y in range(100):
+            for x in range(100):
+                self.tilestate[x][y] = 1
+                pass
+        pass
+
+
+class Monster:
+    def __init__(self):
+        self.x, self.y = 100, 100
+        self.image = load_image('Resource\Monster\Bug.png')
+        self.frame = 0
+        self.dir = 0
+        pass
+
+    def draw(self):
+        self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 100, 100)
+        pass
 
 
 class Hero:
     def __init__(self):
-        self.x, self.y = 400, 300
+        self.x, self.y = 0, 0
+        self.sector = 0     #충돌체크 검사용 섹터
+        self.timer = 0
         self.frame = 0
         self.image = load_image('Resource\Character\Paladin.png')
         self.dir = 1      #0 = 우하, 1 = 하, 2 = 좌하, 3 = 좌, 4 = 좌상, 5 = 상, 6 = 우상, 7 = 우
         self.action = 0     #움직임 판단용
-        self.speed = 5
+        self.speed = 3      #이동속도
+        self.hp = 100
+
 
     def update(self):
-        self.frame = (self.frame + 1) % 4
-        delay(0.1)
+        global timer
+        if timer > 6:
+            timer = 0
+            self.frame += 1
         if self.action == 1:
             if self.dir == 0:
                 self.x += self.speed
@@ -59,29 +88,27 @@ class Hero:
                 self.y += self.speed
             elif self.dir == 7:
                 self.x += self.speed
-#        self.x += self.dir
-#        if self.x >= 800:
-#            self.dir = -1
-#        elif self.x <= 0:
-#            self.dir = 1
+            Crashcheck() #벽과의 충돌체크
 
     def draw(self):
         if self.action == 1:
-            self.image.clip_draw(self.frame * 50, self.dir * 50, 50, 50, self.x, self.y)
+            self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 400, 300)
         elif self.action == 0:
-            self.image.clip_draw(0, self.dir * 50, 50, 50, self.x, self.y)
+            self.image.clip_draw(0, self.dir * 50, 50, 50, 400, 300)
 
 
 def enter():
-    global boy, grass
+    global boy, wall, monster
     boy = Hero()
-    grass = Grass()
+    wall = Wall()
+    monster = Monster()
 
 
 def exit():
-    global boy, grass
+    global boy, wall, monster
     del(boy)
-    del(grass)
+    del(wall)
+    del(monster)
 
 
 def pause():
@@ -99,7 +126,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN:
-            if event.key == SDLK_ESCAPE:
+            if event.key == SDLK_ESCAPE:#ESC 눌렀을 때
                 game_framework.change_state(title_state)
             elif event.key == SDLK_DOWN:#하
                 boy.dir = 1
@@ -110,74 +137,72 @@ def handle_events():
                 boy.action = 1
             elif event.key == SDLK_LEFT:#좌
                 boy.dir = 3
-                boy.x -= 3
                 boy.action = 1
             elif event.key == SDLK_9:#좌상
                 boy.dir = 4
                 boy.action = 1
             elif event.key == SDLK_UP:#상
                 boy.dir = 5
-                boy.y += 3
                 boy.action = 1
             elif event.key == SDLK_7:#우상
                 boy.dir = 6
                 boy.action = 1
             elif event.key == SDLK_RIGHT  :#우
                 boy.dir = 7
-                boy.x += 3
                 boy.action = 1
             elif event.key == SDLK_1:#우하
                 boy.dir = 0
                 boy.action = 1
+
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_DOWN:#하
                 boy.dir = 1
-                boy.y -= 3
                 boy.action = 0
             elif event.key == SDLK_3:#좌하
                 boy.dir = 2
                 boy.action = 0
             elif event.key == SDLK_LEFT:#좌
                 boy.dir = 3
-                boy.x -= 3
                 boy.action = 0
             elif event.key == SDLK_9:#좌상
                 boy.dir = 4
                 boy.action = 0
             elif event.key == SDLK_UP:#상
                 boy.dir = 5
-                boy.y += 3
                 boy.action = 0
             elif event.key == SDLK_7:#우상
                 boy.dir = 6
                 boy.action = 0
             elif event.key == SDLK_RIGHT  :#우
                 boy.dir = 7
-                boy.x += 3
                 boy.action = 0
             elif event.key == SDLK_1:#우하
                 boy.dir = 0
                 boy.action = 0
-            Crashcheck() #벽과의 충돌체크
+
 
 def update():
+    global timer
+    delay(0.016666)
+    timer += 1
     boy.update()
 
 
 def draw():
     clear_canvas()
-    grass.draw()
+    wall.draw()
     boy.draw()
+    monster.draw()
     update_canvas()
 
 
 def Crashcheck(): #벽과의 충돌체크
-    global boy
-    if boy.x > 780:
-        boy.x = 780
-    elif boy.x < 20:
-        boy.x = 20
-    elif boy.y > 580:
-        boy.y = 580
-    elif boy.y < 20:
-        boy.y = 20
+    global boy, wall
+    if boy.x > 400:
+        boy.x = 400
+    elif boy.x < -400:
+        boy.x = -400
+    elif boy.y > 300:
+        boy.y = 300
+    elif boy.y < -300:
+        boy.y = -300
