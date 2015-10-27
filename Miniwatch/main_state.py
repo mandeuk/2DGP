@@ -1,9 +1,8 @@
+from pico2d import *
 import random
 import json
 import os
-
-from pico2d import *
-
+import math
 import game_framework
 import title_state
 
@@ -41,12 +40,39 @@ class Monster:
         self.x, self.y = 100, 100
         self.image = load_image('Resource\Monster\Bug.png')
         self.frame = 0
+        self.state = 0#0:주인공미발견, 1:주인공발견
         self.dir = 0
-        pass
+        self.attack = 0
+        self.damage = 5
+
+    def update(self):
+        global boy
+        if math.sqrt(math.pow(boy.x - self.x, 2.0) + math.pow(boy.y - self.y, 2.0)) < 200:
+            self.state = 1
+            if math.sqrt(math.pow(boy.x - self.x, 2.0) + math.pow(boy.y - self.y, 2.0)) < 30:
+                self.attack += 1
+                if self.attack > 50:
+                    self.attack = 0
+                    boy.hp -= self.damage
+        else:
+            self.state = 0
+            self.attack = 0
+
+        if self.state == 1:
+            if boy.x < self.x:
+                self.x -= 1
+            elif boy.x > self.x:
+                self.x += 1
+            if boy.y < self.y:
+                self.y -= 1
+            elif boy.y > self.y:
+                self.y += 1
+        else:
+            pass
 
     def draw(self):
-        self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 100, 100)
-        pass
+        global boy
+        self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 400 - (boy.x - self.x), 300 - (boy.y - self.y))
 
 
 class Hero:
@@ -60,7 +86,8 @@ class Hero:
         self.action = 0     #움직임 판단용
         self.speed = 3      #이동속도
         self.hp = 100
-
+        self.ui = load_image('Resource\etc\StateUI.png')
+        self.blood = load_image('Resource\etc\healthbar.png')
 
     def update(self):
         global timer
@@ -95,10 +122,12 @@ class Hero:
             self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 400, 300)
         elif self.action == 0:
             self.image.clip_draw(0, self.dir * 50, 50, 50, 400, 300)
+        self.ui.draw(400, 25)
+        self.blood.clip_draw(0, 0, self.hp, 14, 410, 25)
 
 
 def enter():
-    global boy, wall, monster
+    global boy, wall, monster, ui
     boy = Hero()
     wall = Wall()
     monster = Monster()
@@ -186,13 +215,16 @@ def update():
     delay(0.016666)
     timer += 1
     boy.update()
+    monster.update()
+    checksystem()
 
 
 def draw():
+    global ui
     clear_canvas()
     wall.draw()
-    boy.draw()
     monster.draw()
+    boy.draw()
     update_canvas()
 
 
@@ -206,3 +238,9 @@ def Crashcheck(): #벽과의 충돌체크
         boy.y = 300
     elif boy.y < -300:
         boy.y = -300
+
+
+def checksystem():
+    global boy
+    if boy.hp < 0:
+        boy.hp = 0
