@@ -8,12 +8,21 @@ import title_state
 
 
 name = "MainState"
-boy = None
+paladin = None
 monster = None
 font = None
 wall = None
 timer = 0
 
+#0 = 우하, 1 = 하, 2 = 좌하, 3 = 좌, 4 = 좌상, 5 = 상, 6 = 우상, 7 = 우
+Rightdown = 0
+Down = 1
+Leftdown = 2
+Left = 3
+Leftup = 4
+Up = 5
+Rightup = 6
+Right = 7
 
 class Wall:
     def __init__(self):
@@ -21,10 +30,10 @@ class Wall:
         self.tilestate = [[0]*100 for i in range(100)]
 
     def draw(self):
-        global boy
+        global paladin
         for x in range(25):
             for y in range(19):
-                self.image.draw(x * 32 - boy.x, y * 32 - boy.y)
+                self.image.draw(x * 32 - paladin.x, y * 32 - paladin.y)
 
     def enter(self):
         open('tile.txt', 'r')
@@ -46,33 +55,33 @@ class Monster:
         self.damage = 5
 
     def update(self):
-        global boy
-        if math.sqrt(math.pow(boy.x - self.x, 2.0) + math.pow(boy.y - self.y, 2.0)) < 200:
+        global paladin
+        if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 200:
             self.state = 1
-            if math.sqrt(math.pow(boy.x - self.x, 2.0) + math.pow(boy.y - self.y, 2.0)) < 30:
+            if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 30:
                 self.attack += 1
                 if self.attack > 50:
                     self.attack = 0
-                    boy.hp -= self.damage
+                    paladin.hp -= self.damage
         else:
             self.state = 0
             self.attack = 0
 
         if self.state == 1:
-            if boy.x < self.x:
+            if paladin.x < self.x:
                 self.x -= 1
-            elif boy.x > self.x:
+            elif paladin.x > self.x:
                 self.x += 1
-            if boy.y < self.y:
+            if paladin.y < self.y:
                 self.y -= 1
-            elif boy.y > self.y:
+            elif paladin.y > self.y:
                 self.y += 1
         else:
             pass
 
     def draw(self):
-        global boy
-        self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 400 - (boy.x - self.x), 300 - (boy.y - self.y))
+        global paladin
+        self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 400 - (paladin.x - self.x), 300 - (paladin.y - self.y))
 
 
 class Hero:
@@ -82,12 +91,17 @@ class Hero:
         self.timer = 0
         self.frame = 0
         self.image = load_image('Resource\Character\Paladin.png')
-        self.dir = 1      #0 = 우하, 1 = 하, 2 = 좌하, 3 = 좌, 4 = 좌상, 5 = 상, 6 = 우상, 7 = 우
+        self.dir = Rightdown      #0 = 우하, 1 = 하, 2 = 좌하, 3 = 좌, 4 = 좌상, 5 = 상, 6 = 우상, 7 = 우
         self.action = 0     #움직임 판단용
         self.speed = 3      #이동속도
         self.hp = 100
         self.ui = load_image('Resource\etc\StateUI.png')
         self.blood = load_image('Resource\etc\healthbar.png')
+
+        self.left = 0
+        self.right = 0
+        self.up = 0
+        self.down = 0
 
     def update(self):
         global timer
@@ -95,25 +109,25 @@ class Hero:
             timer = 0
             self.frame += 1
         if self.action == 1:
-            if self.dir == 0:
+            if self.dir == Rightdown:
                 self.x += self.speed
                 self.y -= self.speed
-            elif self.dir == 1:
+            elif self.dir == Down:
                 self.y -= self.speed
-            elif self.dir == 2:
-                self.x += self.speed
-                self.y -= self.speed
-            elif self.dir == 3:
+            elif self.dir == Leftdown:
                 self.x -= self.speed
-            elif self.dir == 4:
+                self.y -= self.speed
+            elif self.dir == Left:
+                self.x -= self.speed
+            elif self.dir == Leftup:
                 self.x -= self.speed
                 self.y += self.speed
-            elif self.dir == 5:
+            elif self.dir == Up:
                 self.y += self.speed
-            elif self.dir == 6:
+            elif self.dir == Rightup:
                 self.x += self.speed
                 self.y += self.speed
-            elif self.dir == 7:
+            elif self.dir == Right:
                 self.x += self.speed
             Crashcheck() #벽과의 충돌체크
 
@@ -127,15 +141,15 @@ class Hero:
 
 
 def enter():
-    global boy, wall, monster, ui
-    boy = Hero()
+    global paladin, wall, monster, ui
+    paladin = Hero()
     wall = Wall()
     monster = Monster()
 
 
 def exit():
-    global boy, wall, monster
-    del(boy)
+    global paladin, wall, monster
+    del(paladin)
     del(wall)
     del(monster)
 
@@ -149,74 +163,44 @@ def resume():
 
 
 def handle_events():
-    global boy
+    global paladin
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN:
-            if event.key == SDLK_ESCAPE:#ESC 눌렀을 때
+            paladin.action = 1
+            if event.key == SDLK_ESCAPE:
                 game_framework.change_state(title_state)
-            elif event.key == SDLK_DOWN:#하
-                boy.dir = 1
-                boy.y -= 3
-                boy.action = 1
-            elif event.key == SDLK_3:#좌하
-                boy.dir = 2
-                boy.action = 1
-            elif event.key == SDLK_LEFT:#좌
-                boy.dir = 3
-                boy.action = 1
-            elif event.key == SDLK_9:#좌상
-                boy.dir = 4
-                boy.action = 1
-            elif event.key == SDLK_UP:#상
-                boy.dir = 5
-                boy.action = 1
-            elif event.key == SDLK_7:#우상
-                boy.dir = 6
-                boy.action = 1
-            elif event.key == SDLK_RIGHT  :#우
-                boy.dir = 7
-                boy.action = 1
-            elif event.key == SDLK_1:#우하
-                boy.dir = 0
-                boy.action = 1
-
+            elif event.key == SDLK_DOWN:
+                paladin.down = 1
+            elif event.key == SDLK_LEFT:
+                paladin.left = 1
+            elif event.key == SDLK_UP:
+                paladin.up = 1
+            elif event.key == SDLK_RIGHT:
+                paladin.right = 1
         elif event.type == SDL_KEYUP:
-            if event.key == SDLK_DOWN:#하
-                boy.dir = 1
-                boy.action = 0
-            elif event.key == SDLK_3:#좌하
-                boy.dir = 2
-                boy.action = 0
-            elif event.key == SDLK_LEFT:#좌
-                boy.dir = 3
-                boy.action = 0
-            elif event.key == SDLK_9:#좌상
-                boy.dir = 4
-                boy.action = 0
-            elif event.key == SDLK_UP:#상
-                boy.dir = 5
-                boy.action = 0
-            elif event.key == SDLK_7:#우상
-                boy.dir = 6
-                boy.action = 0
-            elif event.key == SDLK_RIGHT  :#우
-                boy.dir = 7
-                boy.action = 0
-            elif event.key == SDLK_1:#우하
-                boy.dir = 0
-                boy.action = 0
+            if event.key == SDLK_DOWN:
+                paladin.down = 0
+            elif event.key == SDLK_LEFT:
+                paladin.left = 0
+            elif event.key == SDLK_UP:
+                paladin.up = 0
+            elif event.key == SDLK_RIGHT:
+                paladin.right = 0
+            if paladin.down == 0 and paladin.up == 0 and paladin.left == 0 and paladin.right == 0:
+                paladin.action = 0
 
 
 def update():
     global timer
     delay(0.016666)
     timer += 1
-    boy.update()
+    paladin.update()
     monster.update()
     checksystem()
+    dircheck()
 
 
 def draw():
@@ -224,23 +208,63 @@ def draw():
     clear_canvas()
     wall.draw()
     monster.draw()
-    boy.draw()
+    paladin.draw()
     update_canvas()
 
 
 def Crashcheck(): #벽과의 충돌체크
-    global boy, wall
-    if boy.x > 400:
-        boy.x = 400
-    elif boy.x < -400:
-        boy.x = -400
-    elif boy.y > 300:
-        boy.y = 300
-    elif boy.y < -300:
-        boy.y = -300
+    global paladin, wall
+    if paladin.x > 400:
+        paladin.x = 400
+    elif paladin.x < -400:
+        paladin.x = -400
+    elif paladin.y > 300:
+        paladin.y = 300
+    elif paladin.y < -300:
+        paladin.y = -300
 
 
 def checksystem():
-    global boy
-    if boy.hp < 0:
-        boy.hp = 0
+    global paladin
+    if paladin.hp < 0:
+        paladin.hp = 0
+
+
+def dircheck():
+    global paladin
+    if paladin.down == 1:
+        if paladin.left == 1:
+            paladin.dir = Leftdown
+        elif paladin.right == 1:
+            paladin.dir = Rightdown
+        elif paladin.up == 1 and paladin.dir == Down:
+            paladin.dir = Up
+        else:
+            paladin.dir = Down
+    elif paladin.left == 1:
+        if paladin.up == 1:
+            paladin.dir = Leftup
+        elif paladin.down == 1:
+            paladin.dir = Leftdown
+        elif paladin.right == 1 and paladin.dir == Left:
+            paladin.dir = Right
+        else:
+            paladin.dir = Left
+    elif paladin.up == 1:
+        if paladin.left == 1:
+            paladin.dir = Leftup
+        elif paladin.right == 1:
+            paladin.dir = Rightup
+        elif paladin.down == 1 and paladin.dir == Up:
+            paladin.dir = Down
+        else:
+            paladin.dir = Up
+    elif paladin.right == 1:
+        if paladin.up == 1:
+            paladin.dir = Rightup
+        elif paladin.down == 1:
+            paladin.dir = Rightdown
+        elif paladin.left == 1 and paladin.dir == Right:
+            paladin.dir = Left
+        else:
+            paladin.dir = Right

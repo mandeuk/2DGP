@@ -9,7 +9,7 @@ image = None
 
 def enter():
     global image
-    image = load_image('Miniwatch_Title.png')
+    image = load_image('Resource\Title\Miniwatch_Title.png')
 
 
 def exit():

@@ -11,7 +11,7 @@ logo_time = 0.0
 def enter():
     global image
     open_canvas()
-    image = load_image('kpu_credit.png')
+    image = load_image('Resource\Title\kpu_credit.png')
 
 
 def exit():
@@ -24,7 +24,7 @@ def update():
     global logo_time
     if(logo_time > 1.0):
         logo_time = 0
-        game_framework.push_state(title_state) #1초 후 타이틀 이미지로 넘어감
+        game_framework.push_state(title_state)
     delay(0.01)
     logo_time += 0.01
 
