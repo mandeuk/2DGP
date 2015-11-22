@@ -26,22 +26,20 @@ Right = 7
 
 class Wall:
     def __init__(self):
-        self.image = load_image('Resource\MapTile\Ground_Tile1.png')
-        self.tilestate = [[0]*100 for i in range(100)]
+        self.image1 = load_image('Resource\MapTile\Ground_Tile1.png')
+        self.image2 = load_image('Resource\MapTile\Pillar_Top.png')
+        #self.tilestate = [[0]*100 for i in range(100)]
 
     def draw(self):
         global paladin
-        for x in range(25):
-            for y in range(19):
-                self.image.draw(x * 32 - paladin.x, y * 32 - paladin.y)
-
-    def enter(self):
-        open('tile.txt', 'r')
-        for y in range(100):
-            for x in range(100):
-                self.tilestate[x][y] = 1
-                pass
-        pass
+        x = paladin.x/32#(paladin.x/32) - (paladin.x%32)
+        y = paladin.y/32#(paladin.y/19) - (paladin.y%19)
+        xx = x + 30
+        yy = y + 30
+        print(x,   y,   xx,   yy)
+        for i in range(int(x), int(x)+30):
+            for j in range(int(y), int(y)+30):
+                self.image1.draw(i * 32 - paladin.x-32, j * 32 - paladin.y-32)
 
 
 class Monster:
@@ -81,13 +79,16 @@ class Monster:
 
     def draw(self):
         global paladin
-        self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 400 - (paladin.x - self.x), 300 - (paladin.y - self.y))
+        self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 400-(paladin.x - self.x), 300-(paladin.y - self.y))
 
 
 class Hero:
     def __init__(self):
         self.x, self.y = 0, 0
-        self.sector = 0     #충돌체크 검사용 섹터
+        self.sector_x = 0     #충돌체크 검사용 섹터
+        self.sector_y = 0
+        self.mx, self.my = 0, 0
+
         self.timer = 0
         self.frame = 0
         self.image = load_image('Resource\Character\Paladin.png')
@@ -112,24 +113,36 @@ class Hero:
             if self.dir == Rightdown:
                 self.x += self.speed
                 self.y -= self.speed
+                self.mx += self.speed
+                self.my -= self.speed
             elif self.dir == Down:
                 self.y -= self.speed
+                self.my -= self.speed
             elif self.dir == Leftdown:
                 self.x -= self.speed
                 self.y -= self.speed
+                self.mx -= self.speed
+                self.my -= self.speed
             elif self.dir == Left:
                 self.x -= self.speed
+                self.mx -= self.speed
             elif self.dir == Leftup:
                 self.x -= self.speed
                 self.y += self.speed
+                self.mx -= self.speed
+                self.my += self.speed
             elif self.dir == Up:
                 self.y += self.speed
+                self.my += self.speed
             elif self.dir == Rightup:
                 self.x += self.speed
                 self.y += self.speed
+                self.mx += self.speed
+                self.my += self.speed
             elif self.dir == Right:
                 self.x += self.speed
-            Crashcheck() #벽과의 충돌체크
+                self.mx += self.speed
+            #Crashcheck()#벽과의 충돌체크
 
     def draw(self):
         if self.action == 1:
@@ -137,7 +150,7 @@ class Hero:
         elif self.action == 0:
             self.image.clip_draw(0, self.dir * 50, 50, 50, 400, 300)
         self.ui.draw(400, 25)
-        self.blood.clip_draw(0, 0, self.hp, 14, 410, 25)
+        self.blood.clip_draw(0, 0, self.hp, 14, 412, 25)
 
 
 def enter():
@@ -218,10 +231,16 @@ def Crashcheck(): #벽과의 충돌체크
         paladin.x = 400
     elif paladin.x < -400:
         paladin.x = -400
-    elif paladin.y > 300:
+    if paladin.y > 300:
         paladin.y = 300
     elif paladin.y < -300:
         paladin.y = -300
+    #for x in range(100):
+        #for y in range(100):
+
+
+def createwall():
+    pass
 
 
 def checksystem():
