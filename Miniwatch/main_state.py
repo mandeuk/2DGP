@@ -12,6 +12,7 @@ paladin = None
 monster = None
 font = None
 wall = None
+stage = 1
 timer = 0
 
 #0 = 우하, 1 = 하, 2 = 좌하, 3 = 좌, 4 = 좌상, 5 = 상, 6 = 우상, 7 = 우
@@ -28,18 +29,42 @@ class Wall:
     def __init__(self):
         self.image1 = load_image('Resource\MapTile\Ground_Tile1.png')
         self.image2 = load_image('Resource\MapTile\Pillar_Top.png')
-        #self.tilestate = [[0]*100 for i in range(100)]
+        self.tilestate = [[0]*100 for i in range(100)]
 
     def draw(self):
         global paladin
-        x = paladin.x/32#(paladin.x/32) - (paladin.x%32)
-        y = paladin.y/32#(paladin.y/19) - (paladin.y%19)
-        xx = x + 30
-        yy = y + 30
-        print(x,   y,   xx,   yy)
-        for i in range(int(x), int(x)+30):
-            for j in range(int(y), int(y)+30):
-                self.image1.draw(i * 32 - paladin.x-32, j * 32 - paladin.y-32)
+        x = (paladin.x)/32#(paladin.x/32) - (paladin.x%32)
+        y = (paladin.y)/32#(paladin.y/19) - (paladin.y%19)
+        if x < 0:
+            x = 0
+        elif x > 99:
+            x = 99
+        if y < 0:
+            y = 0
+        elif y > 99:
+            y = 99
+        print(x,   paladin.x,   paladin.y)######
+        for i in range(int(y), int(y)+25):
+            for j in range(int(x), int(x)+30):
+                if j > 99:
+                    j = 99
+                if i > 99:
+                    i = 99
+                if self.tilestate[i][j] == '01':
+                    self.image1.draw(j * 32 - paladin.x-32, i * 32 - paladin.y)
+                elif self.tilestate[i][j] == '02':
+                    self.image2.draw(j * 32 - paladin.x-32, i * 32 - paladin.y)
+                else:
+                    pass
+
+    def stage(self):
+        f = open('Resource/text.txt', 'r')
+        for i in range(100):
+            for j in range(100):
+                self.tilestate[i][j] = f.read(2)
+                #print(self.tilestate[i][j])#######
+        f.close()
+        pass
 
 
 class Monster:
@@ -87,7 +112,6 @@ class Hero:
         self.x, self.y = 0, 0
         self.sector_x = 0     #충돌체크 검사용 섹터
         self.sector_y = 0
-        self.mx, self.my = 0, 0
 
         self.timer = 0
         self.frame = 0
@@ -113,35 +137,23 @@ class Hero:
             if self.dir == Rightdown:
                 self.x += self.speed
                 self.y -= self.speed
-                self.mx += self.speed
-                self.my -= self.speed
             elif self.dir == Down:
                 self.y -= self.speed
-                self.my -= self.speed
             elif self.dir == Leftdown:
                 self.x -= self.speed
                 self.y -= self.speed
-                self.mx -= self.speed
-                self.my -= self.speed
             elif self.dir == Left:
                 self.x -= self.speed
-                self.mx -= self.speed
             elif self.dir == Leftup:
                 self.x -= self.speed
                 self.y += self.speed
-                self.mx -= self.speed
-                self.my += self.speed
             elif self.dir == Up:
                 self.y += self.speed
-                self.my += self.speed
             elif self.dir == Rightup:
                 self.x += self.speed
                 self.y += self.speed
-                self.mx += self.speed
-                self.my += self.speed
             elif self.dir == Right:
                 self.x += self.speed
-                self.mx += self.speed
             #Crashcheck()#벽과의 충돌체크
 
     def draw(self):
@@ -158,6 +170,7 @@ def enter():
     paladin = Hero()
     wall = Wall()
     monster = Monster()
+    wall.stage()
 
 
 def exit():
@@ -208,7 +221,7 @@ def handle_events():
 
 def update():
     global timer
-    delay(0.016666)
+    delay(0.01)
     timer += 1
     paladin.update()
     monster.update()
