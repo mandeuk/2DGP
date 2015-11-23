@@ -9,7 +9,7 @@ import title_state
 
 name = "MainState"
 paladin = None
-monster = None
+monster = [None] * 100
 font = None
 wall = None
 stage = 1
@@ -77,6 +77,11 @@ class Monster:
         self.attack = 0
         self.damage = 5
 
+        self.left = 0
+        self.right = 0
+        self.up = 0
+        self.down = 0
+
     def update(self):
         global paladin
         if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 200:
@@ -93,12 +98,26 @@ class Monster:
         if self.state == 1:
             if paladin.x < self.x:
                 self.x -= 1
+                self.left = 1
+                self.right = 0
             elif paladin.x > self.x:
                 self.x += 1
+                self.left = 0
+                self.right = 1
+            else:
+                self.left = 0
+                self.right = 0
             if paladin.y < self.y:
                 self.y -= 1
+                self.up = 0
+                self.down = 1
             elif paladin.y > self.y:
                 self.y += 1
+                self.up = 1
+                self.down = 0
+            else:
+                self.up = 0
+                self.down = 0
         else:
             pass
 
@@ -169,7 +188,8 @@ def enter():
     global paladin, wall, monster, ui
     paladin = Hero()
     wall = Wall()
-    monster = Monster()
+    for i in range(100):
+        monster[i] = Monster()
     wall.stage()
 
 
@@ -221,10 +241,11 @@ def handle_events():
 
 def update():
     global timer
-    delay(0.01)
+    #delay(0.01)
     timer += 1
     paladin.update()
-    monster.update()
+    for i in range(100):
+        monster[i].update()
     checksystem()
     dircheck()
 
@@ -233,7 +254,8 @@ def draw():
     global ui
     clear_canvas()
     wall.draw()
-    monster.draw()
+    for i in range(100):
+        monster[i].draw()
     paladin.draw()
     update_canvas()
 
@@ -263,7 +285,7 @@ def checksystem():
 
 
 def dircheck():
-    global paladin
+    global paladin, monster
     if paladin.down == 1:
         if paladin.left == 1:
             paladin.dir = Leftdown
@@ -300,3 +322,41 @@ def dircheck():
             paladin.dir = Left
         else:
             paladin.dir = Right
+
+    for i in range(100):
+        if monster[i].down == 1:
+            if monster[i].left == 1:
+                monster[i].dir = Leftdown
+            elif monster[i].right == 1:
+                monster[i].dir = Rightdown
+            elif monster[i].up == 1 and monster[i].dir == Down:
+                monster[i].dir = Up
+            else:
+                monster[i].dir = Down
+        elif monster[i].left == 1:
+            if monster[i].up == 1:
+                monster[i].dir = Leftup
+            elif monster[i].down == 1:
+                monster[i].dir = Leftdown
+            elif monster[i].right == 1 and monster[i].dir == Left:
+                monster[i].dir = Right
+            else:
+                monster[i].dir = Left
+        elif monster[i].up == 1:
+            if monster[i].left == 1:
+                monster[i].dir = Leftup
+            elif monster[i].right == 1:
+                monster[i].dir = Rightup
+            elif monster[i].down == 1 and monster[i].dir == Up:
+                monster[i].dir = Down
+            else:
+                monster[i].dir = Up
+        elif monster[i].right == 1:
+            if monster[i].up == 1:
+                monster[i].dir = Rightup
+            elif monster[i].down == 1:
+                monster[i].dir = Rightdown
+            elif monster[i].left == 1 and monster[i].dir == Right:
+                monster[i].dir = Left
+            else:
+                monster[i].dir = Right
