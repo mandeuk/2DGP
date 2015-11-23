@@ -5,6 +5,7 @@ import os
 import math
 import game_framework
 import title_state
+import lose_state
 
 
 name = "MainState"
@@ -69,7 +70,7 @@ class Wall:
 
 class Monster:
     def __init__(self):
-        self.x, self.y = 100, 100
+        self.x, self.y = random.randrange(2000), random.randrange(2000)
         self.image = load_image('Resource\Monster\Bug.png')
         self.frame = 0
         self.state = 0#0:주인공미발견, 1:주인공발견
@@ -173,7 +174,7 @@ class Hero:
                 self.y += self.speed
             elif self.dir == Right:
                 self.x += self.speed
-            #Crashcheck()#벽과의 충돌체크
+            Crashcheck()#벽과의 충돌체크
 
     def draw(self):
         if self.action == 1:
@@ -194,10 +195,21 @@ def enter():
 
 
 def exit():
-    global paladin, wall, monster
+    global paladin, wall, monster, font, stage, timer, Rightdown, Down, Leftdown, Left, Leftup, Up, Rightup, Right
     del(paladin)
     del(wall)
-    del(monster)
+#    del(monster)
+#    del(font)
+#    del(stage)
+#    del(timer)
+#    del(Rightdown)
+#    del(Down)
+#    del(Leftdown)
+#    del(Left)
+#    del(Leftup)
+#    del(Up)
+#    del(Rightup)
+#    del(Right)
 
 
 def pause():
@@ -246,8 +258,8 @@ def update():
     paladin.update()
     for i in range(100):
         monster[i].update()
-    checksystem()
     dircheck()
+    checksystem()
 
 
 def draw():
@@ -262,12 +274,12 @@ def draw():
 
 def Crashcheck(): #벽과의 충돌체크
     global paladin, wall
-    if paladin.x > 400:
-        paladin.x = 400
+    if paladin.x > 2750:
+        paladin.x = 2750
     elif paladin.x < -400:
         paladin.x = -400
-    if paladin.y > 300:
-        paladin.y = 300
+    if paladin.y > 2850:
+        paladin.y = 2850
     elif paladin.y < -300:
         paladin.y = -300
     #for x in range(100):
@@ -282,6 +294,7 @@ def checksystem():
     global paladin
     if paladin.hp < 0:
         paladin.hp = 0
+        game_framework.change_state(lose_state)
 
 
 def dircheck():
