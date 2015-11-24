@@ -269,7 +269,7 @@ def handle_events():
 
 def update():
     global timer
-    #delay(0.01)
+    delay(0.01)
     timer += 1
     dircheck()
     paladin.update()
@@ -290,14 +290,14 @@ def draw():
 
 def Crashcheck(): #벽과의 충돌체크
     global paladin, wall
-    if paladin.x > 2750:
-        paladin.x = 2750
-    elif paladin.x < -400:
-        paladin.x = -400
-    if paladin.y > 2850:
-        paladin.y = 2850
-    elif paladin.y < -300:
-        paladin.y = -300
+    if paladin.x > 3200:
+        paladin.x = 3200
+    elif paladin.x < 0:
+        paladin.x = 0
+    if paladin.y > 3200:
+        paladin.y = 3200
+    elif paladin.y < 0:
+        paladin.y = 0
     #for x in range(100):
         #for y in range(100):
 

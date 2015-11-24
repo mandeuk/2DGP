@@ -5,9 +5,9 @@ from pico2d import *
 
 name = "TitleState"
 image = None
-bgm = load_music('Resource/Music/Maintheme.mp3')
-bgm.set_volume(64)
-bgm.repeat_play()
+#bgm = load_music('Resource/Music/Maintheme.mp3')
+#bgm.set_volume(64)
+#bgm.repeat_play()
 def enter():
     global image
     image = load_image('Resource\Title\Miniwatch_Title.png')
@@ -16,7 +16,7 @@ def enter():
 def exit():
     global image
     del(image)
-    del(bgm)
+    #del(bgm)
 
 
 def handle_events():
