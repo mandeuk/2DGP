@@ -28,14 +28,17 @@ Right = 7
 
 class Wall:
     def __init__(self):
-        self.image1 = load_image('Resource\MapTile\Ground_Tile1.png')
-        self.image2 = load_image('Resource\MapTile\Pillar_Top.png')
+        self.image1 = load_image('Resource/MapTile/Ground_Tile1.png')
+        self.image2 = load_image('Resource/MapTile/Pillar_Top.png')
+        self.image3 = load_image('Resource/MapTile/Wall_RRTile1.png')
+        self.image4 = load_image('Resource/MapTile/Wall_UUTile1.png')
+        self.image5 = load_image('Resource/MapTile/Pillar_Mid.png')
         self.tilestate = [[0]*100 for i in range(100)]
 
     def draw(self):
         global paladin
-        x = (paladin.x)/32#(paladin.x/32) - (paladin.x%32)
-        y = (paladin.y)/32#(paladin.y/19) - (paladin.y%19)
+        x = (paladin.x)/32 - 12
+        y = (paladin.y)/32 - 10
         if x < 0:
             x = 0
         elif x > 99:
@@ -51,10 +54,18 @@ class Wall:
                     j = 99
                 if i > 99:
                     i = 99
+                tempx = (j * 32 - paladin.x)+400
+                tempy = (i * 32 - paladin.y)+300
                 if self.tilestate[i][j] == '01':
-                    self.image1.draw(j * 32 - paladin.x-32, i * 32 - paladin.y)
+                    self.image1.draw(tempx, tempy)
                 elif self.tilestate[i][j] == '02':
-                    self.image2.draw(j * 32 - paladin.x-32, i * 32 - paladin.y)
+                    self.image2.draw(tempx, tempy)
+                elif self.tilestate[i][j] == '03':
+                    self.image3.draw(tempx, tempy)
+                elif self.tilestate[i][j] == '04':
+                    self.image4.draw(tempx, tempy)
+                elif self.tilestate[i][j] == '05':
+                    self.image5.draw(tempx, tempy)
                 else:
                     pass
 
@@ -227,17 +238,22 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN:
-            paladin.action = 1
             if event.key == SDLK_ESCAPE:
                 game_framework.change_state(title_state)
             elif event.key == SDLK_DOWN:
                 paladin.down = 1
+                paladin.action = 1
             elif event.key == SDLK_LEFT:
                 paladin.left = 1
+                paladin.action = 1
             elif event.key == SDLK_UP:
                 paladin.up = 1
+                paladin.action = 1
             elif event.key == SDLK_RIGHT:
                 paladin.right = 1
+                paladin.action = 1
+            elif event.key == SDLK_a:
+                pass
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_DOWN:
                 paladin.down = 0
@@ -255,10 +271,10 @@ def update():
     global timer
     #delay(0.01)
     timer += 1
+    dircheck()
     paladin.update()
     for i in range(100):
         monster[i].update()
-    dircheck()
     checksystem()
 
 
