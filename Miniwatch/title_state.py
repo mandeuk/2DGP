@@ -2,21 +2,24 @@ import game_framework
 import main_state
 from pico2d import *
 
+from sound import Sound
+
 
 name = "TitleState"
 image = None
-bgm = load_music('Resource/Music/Maintheme.mp3')
-bgm.set_volume(64)
-bgm.repeat_play()
+music = None
+
 def enter():
-    global image
+    global image, music
     image = load_image('Resource\Title\Miniwatch_Title.png')
+    if music == None:
+        music = Sound()
 
 
 def exit():
     global image
     del(image)
-    del(bgm)
+    music.bgm.set_volume(0)
 
 
 def handle_events():
@@ -51,9 +54,3 @@ def pause():
 
 def resume():
     pass
-
-
-
-
-
-

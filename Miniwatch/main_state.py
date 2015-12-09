@@ -16,6 +16,7 @@ wall = None
 stage = 1
 timer = 0
 
+
 #0 = 우하, 1 = 하, 2 = 좌하, 3 = 좌, 4 = 좌상, 5 = 상, 6 = 우상, 7 = 우
 Rightdown = 0
 Down = 1
@@ -25,6 +26,7 @@ Leftup = 4
 Up = 5
 Rightup = 6
 Right = 7
+
 
 class Wall:
     def __init__(self):
@@ -79,63 +81,7 @@ class Wall:
         pass
 
 
-class Monster:
-    def __init__(self):
-        self.x, self.y = random.randrange(2000), random.randrange(2000)
-        self.image = load_image('Resource\Monster\Bug.png')
-        self.frame = 0
-        self.state = 0#0:주인공미발견, 1:주인공발견
-        self.dir = 0
-        self.attack = 0
-        self.damage = 5
 
-        self.left = 0
-        self.right = 0
-        self.up = 0
-        self.down = 0
-
-    def update(self):
-        global paladin
-        if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 200:
-            self.state = 1
-            if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 30:
-                self.attack += 1
-                if self.attack > 50:
-                    self.attack = 0
-                    paladin.hp -= self.damage
-        else:
-            self.state = 0
-            self.attack = 0
-
-        if self.state == 1:
-            if paladin.x < self.x:
-                self.x -= 1
-                self.left = 1
-                self.right = 0
-            elif paladin.x > self.x:
-                self.x += 1
-                self.left = 0
-                self.right = 1
-            else:
-                self.left = 0
-                self.right = 0
-            if paladin.y < self.y:
-                self.y -= 1
-                self.up = 0
-                self.down = 1
-            elif paladin.y > self.y:
-                self.y += 1
-                self.up = 1
-                self.down = 0
-            else:
-                self.up = 0
-                self.down = 0
-        else:
-            pass
-
-    def draw(self):
-        global paladin
-        self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 400-(paladin.x - self.x), 300-(paladin.y - self.y))
 
 
 class Hero:
@@ -389,3 +335,62 @@ def dircheck():
                 monster[i].dir = Left
             else:
                 monster[i].dir = Right
+
+
+class Monster:
+    def __init__(self):
+        self.x, self.y = random.randrange(2000), random.randrange(2000)
+        self.image = load_image('Resource\Monster\Bug.png')
+        self.frame = 0
+        self.state = 0#0:주인공미발견, 1:주인공발견
+        self.dir = 0
+        self.attack = 0
+        self.damage = 5
+
+        self.left = 0
+        self.right = 0
+        self.up = 0
+        self.down = 0
+
+    def update(self):
+        global paladin
+        if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 200:
+            self.state = 1
+            if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 30:
+                self.attack += 1
+                if self.attack > 50:
+                    self.attack = 0
+                    paladin.hp -= self.damage
+        else:
+            self.state = 0
+            self.attack = 0
+
+        if self.state == 1:
+            if paladin.x < self.x:
+                self.x -= 1
+                self.left = 1
+                self.right = 0
+            elif paladin.x > self.x:
+                self.x += 1
+                self.left = 0
+                self.right = 1
+            else:
+                self.left = 0
+                self.right = 0
+            if paladin.y < self.y:
+                self.y -= 1
+                self.up = 0
+                self.down = 1
+            elif paladin.y > self.y:
+                self.y += 1
+                self.up = 1
+                self.down = 0
+            else:
+                self.up = 0
+                self.down = 0
+        else:
+            pass
+
+    def draw(self):
+        global paladin
+        self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 400-(paladin.x - self.x), 300-(paladin.y - self.y))
