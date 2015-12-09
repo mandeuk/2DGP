@@ -7,29 +7,24 @@ from sound import Sound
 
 name = "TitleState"
 image = None
-<<<<<<< HEAD
 music = None
+button = None
 
-=======
-#bgm = load_music('Resource/Music/Maintheme.mp3')
-#bgm.set_volume(64)
-#bgm.repeat_play()
->>>>>>> origin/master
 def enter():
-    global image, music
+    global image, music, button
     image = load_image('Resource\Title\Miniwatch_Title.png')
+    button = load_image('Resource\Title\mainbutton.png')
     if music == None:
         music = Sound()
+    else:
+        music.bgm.set_volume(64)
 
 
 def exit():
-    global image
+    global image, button, music
     del(image)
-<<<<<<< HEAD
-    music.bgm.set_volume(0)
-=======
-    #del(bgm)
->>>>>>> origin/master
+    del(button)
+    music = None
 
 
 def handle_events():

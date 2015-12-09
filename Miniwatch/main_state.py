@@ -7,6 +7,7 @@ import game_framework
 import title_state
 import lose_state
 
+from sound import Sound
 
 name = "MainState"
 paladin = None
@@ -15,7 +16,10 @@ font = None
 wall = None
 stage = 1
 timer = 0
-
+music = None
+tiledata_file = open('Resource/untitled.json', 'r')
+tiledata = json.load(tiledata_file)
+print('%s' % (tiledata))
 
 #0 = 우하, 1 = 하, 2 = 좌하, 3 = 좌, 4 = 좌상, 5 = 상, 6 = 우상, 7 = 우
 Rightdown = 0
@@ -30,12 +34,9 @@ Right = 7
 
 class Wall:
     def __init__(self):
-        self.image1 = load_image('Resource/MapTile/Ground_Tile1.png')
-        self.image2 = load_image('Resource/MapTile/Pillar_Top.png')
-        self.image3 = load_image('Resource/MapTile/Wall_RRTile1.png')
-        self.image4 = load_image('Resource/MapTile/Wall_UUTile1.png')
-        self.image5 = load_image('Resource/MapTile/Pillar_Mid.png')
+        self.tilemap = load_image('Resource/MapTile/tilemap.png')
         self.tilestate = [[0]*100 for i in range(100)]
+        self.testdot = load_image('dot.png')
 
     def draw(self):
         global paladin
@@ -49,39 +50,36 @@ class Wall:
             y = 0
         elif y > 99:
             y = 99
-        print(x,   paladin.x,   paladin.y)######
+        #print(x,   paladin.x,   paladin.y)#####################################################################################################################################
         for i in range(int(y), int(y)+25):
             for j in range(int(x), int(x)+30):
                 if j > 99:
                     j = 99
                 if i > 99:
                     i = 99
-                tempx = (j * 32 - paladin.x)+400
-                tempy = (i * 32 - paladin.y)+300
+                tempx = (j * 32 - paladin.x)+416
+                tempy = (i * 32 - paladin.y)+316
                 if self.tilestate[i][j] == '01':
-                    self.image1.draw(tempx, tempy)
+                    self.tilemap.clip_draw(32 * 0, 32*9, 32, 32, tempx, tempy)
                 elif self.tilestate[i][j] == '02':
-                    self.image2.draw(tempx, tempy)
+                    self.tilemap.clip_draw(32 * 1, 32*9, 32, 32, tempx, tempy)
                 elif self.tilestate[i][j] == '03':
-                    self.image3.draw(tempx, tempy)
+                    self.tilemap.clip_draw(32 * 2, 32*9, 32, 32, tempx, tempy)
                 elif self.tilestate[i][j] == '04':
-                    self.image4.draw(tempx, tempy)
+                    self.tilemap.clip_draw(32 * 3, 32*9, 32, 32, tempx, tempy)
                 elif self.tilestate[i][j] == '05':
-                    self.image5.draw(tempx, tempy)
+                    self.tilemap.clip_draw(32 * 4, 32*9, 32, 32, tempx, tempy)
                 else:
                     pass
+                self.testdot.draw(tempx-16,tempy-16)
 
     def stage(self):
-        f = open('Resource/text.txt', 'r')
+        f = open('Resource/txt.txt', 'r')
         for i in range(100):
             for j in range(100):
                 self.tilestate[i][j] = f.read(2)
-                #print(self.tilestate[i][j])#######
         f.close()
         pass
-
-
-
 
 
 class Hero:
@@ -131,7 +129,6 @@ class Hero:
                 self.y += self.speed
             elif self.dir == Right:
                 self.x += self.speed
-            Crashcheck()#벽과의 충돌체크
 
     def draw(self):
         if self.action == 1:
@@ -143,30 +140,20 @@ class Hero:
 
 
 def enter():
-    global paladin, wall, monster, ui
+    global paladin, wall, monster, ui, music
     paladin = Hero()
     wall = Wall()
     for i in range(100):
         monster[i] = Monster()
     wall.stage()
+    music = Sound()
 
 
 def exit():
-    global paladin, wall, monster, font, stage, timer, Rightdown, Down, Leftdown, Left, Leftup, Up, Rightup, Right
+    global paladin, wall, music
     del(paladin)
     del(wall)
-#    del(monster)
-#    del(font)
-#    del(stage)
-#    del(timer)
-#    del(Rightdown)
-#    del(Down)
-#    del(Leftdown)
-#    del(Left)
-#    del(Leftup)
-#    del(Up)
-#    del(Rightup)
-#    del(Right)
+    music = None
 
 
 def pause():
@@ -219,6 +206,7 @@ def update():
     timer += 1
     dircheck()
     paladin.update()
+    Crashcheck()#벽과의 충돌체크
     for i in range(100):
         monster[i].update()
     checksystem()
@@ -244,8 +232,41 @@ def Crashcheck(): #벽과의 충돌체크
         paladin.y = 3200
     elif paladin.y < 0:
         paladin.y = 0
-    #for x in range(100):
-        #for y in range(100):
+    Cx = int(paladin.x/32)
+    Cy = int(paladin.y/32)
+    #print('캐릭터위치 %d, %d' % (Cx, Cy))
+    #print('캐릭터판 %s' % wall.tilestate[Cy][Cx])
+    #print('오른쪽x충돌체크 좌표 %s' % ((C))
+    for y in range(Cy-1, Cy+2):
+        for x in range(Cx-1, Cx+2):
+
+
+            if wall.tilestate[y][x] < '05':
+                #print('%d, %d, %s' % (x, y, wall.tilestate[y][x]))############################################################################################################
+                pass
+            else:
+                #print('%d, %d, %s' % (x, y, wall.tilestate[y][x]))
+                if x < Cx and y < Cy:
+                    pass
+                elif x < Cx and y > Cy:
+                    pass
+                elif x > Cx and y < Cy:
+                    pass
+                elif x > Cx and y > Cy:
+                    pass
+                elif x == Cx-1:
+                    print('%d, %d' % (paladin.x, ((x * 32)+32)))
+                    if paladin.x < ((x * 32)+48):
+                        paladin.x = ((x * 32)+48)
+                elif Cx+1 == x:
+                    if ((x * 32)-16) < paladin.x:
+                        paladin.x = ((x * 32)-16)
+                elif y == Cy-1:
+                    if paladin.y < ((y * 32) + 48):
+                        paladin.y = ((y * 32) + 48)
+                elif Cy+1 == y:
+                    if ((y * 32)-16) < paladin.y:
+                        paladin.y = ((y * 32)-16)
 
 
 def createwall():
