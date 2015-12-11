@@ -234,18 +234,11 @@ def Crashcheck(): #벽과의 충돌체크
         paladin.y = 0
     Cx = int(paladin.x/32)
     Cy = int(paladin.y/32)
-    #print('캐릭터위치 %d, %d' % (Cx, Cy))
-    #print('캐릭터판 %s' % wall.tilestate[Cy][Cx])
-    #print('오른쪽x충돌체크 좌표 %s' % ((C))
     for y in range(Cy-1, Cy+2):
         for x in range(Cx-1, Cx+2):
-
-
             if wall.tilestate[y][x] < '05':
-                #print('%d, %d, %s' % (x, y, wall.tilestate[y][x]))############################################################################################################
                 pass
             else:
-                #print('%d, %d, %s' % (x, y, wall.tilestate[y][x]))
                 if x < Cx and y < Cy:
                     pass
                 elif x < Cx and y > Cy:
@@ -255,7 +248,6 @@ def Crashcheck(): #벽과의 충돌체크
                 elif x > Cx and y > Cy:
                     pass
                 elif x == Cx-1:
-                    print('%d, %d' % (paladin.x, ((x * 32)+32)))
                     if paladin.x < ((x * 32)+48):
                         paladin.x = ((x * 32)+48)
                 elif Cx+1 == x:
