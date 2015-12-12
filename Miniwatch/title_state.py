@@ -67,13 +67,12 @@ def handle_events():
             mouse_x = event.x
             mouse_y = event.y
         if (event.type, event.button) == (SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT):
-            if button.start or button.exit:
+            if button.start:
                 button.clicksound.play(1)
-        else:
-            if(event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
-                game_framework.quit()
-            elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_SPACE):
                 game_framework.change_state(main_state)
+            elif button.exit:
+                button.clicksound.play(1)
+                game_framework.quit()
 
 
 def draw():

@@ -50,7 +50,7 @@ class Wall:
             y = 0
         elif y > 99:
             y = 99
-        #print(x,   paladin.x,   paladin.y)#####################################################################################################################################
+        #print(x,   paladin.x,   paladin.y)##########################################################
         for i in range(int(y), int(y)+25):
             for j in range(int(x), int(x)+30):
                 if j > 99:
@@ -97,6 +97,8 @@ class Hero:
         self.hp = 100
         self.ui = load_image('Resource\etc\StateUI.png')
         self.blood = load_image('Resource\etc\healthbar.png')
+        self.atk = False
+        self.atkframe = 0
 
         self.left = 0
         self.right = 0
@@ -104,7 +106,7 @@ class Hero:
         self.down = 0
 
     def update(self):
-        global timer
+        global timer, monster, paladin
         if timer > 6:
             timer = 0
             self.frame += 1
@@ -130,6 +132,60 @@ class Hero:
             elif self.dir == Right:
                 self.x += self.speed
 
+    def attack(self):
+        global monster
+        for i in range(100):
+            distance = 40
+
+            if self.dir == 0:#우하
+                if self.x < monster[i].x < self.x+distance:
+                    if self.y-distance < monster[i].y < self.y:
+                        monster[i].x = random.randrange(2000)
+                        monster[i].y = random.randrange(2000)
+                        print('kill0')
+            elif self.dir == 1:#하
+                if self.x-(distance*0.75) < monster[i].x < self.x+(distance*0.75):
+                    if self.y-(distance*1.25) < monster[i].y < self.y:
+                        monster[i].x = random.randrange(2000)
+                        monster[i].y = random.randrange(2000)
+                        print('kill1')
+            elif self.dir == 2:#좌하
+                if self.x-distance < monster[i].x < self.x:
+                    if self.y-distance < monster[i].y < self.y:
+                        monster[i].x = random.randrange(2000)
+                        monster[i].y = random.randrange(2000)
+                        print('kill2')
+            elif self.dir == 3:#좌
+                if self.x-(distance*1.25) < monster[i].x < self.x:
+                    if self.y-(distance*0.75) < monster[i].y < self.y+(distance*0.75):
+                        monster[i].x = random.randrange(2000)
+                        monster[i].y = random.randrange(2000)
+                        print('kill3')
+            elif self.dir == 4:#좌상
+                if self.x-distance < monster[i].x < self.x:
+                    if self.y < monster[i].y < self.y+distance:
+                        monster[i].x = random.randrange(2000)
+                        monster[i].y = random.randrange(2000)
+                        print('kill4')
+            elif self.dir == 5:#상
+                if self.x-(distance*0.75) < monster[i].x < self.x+(distance*0.75):
+                    if self.y < monster[i].y < self.y+(distance*1.25):
+                        monster[i].x = random.randrange(2000)
+                        monster[i].y = random.randrange(2000)
+                        print('kill5')
+            elif self.dir == 6:#우상
+                if self.x < monster[i].x < self.x+distance:
+                    if self.y < monster[i].y < self.y+distance:
+                        monster[i].x = random.randrange(2000)
+                        monster[i].y = random.randrange(2000)
+                        print('kill6')
+            elif self.dir == 7:#우
+                if self.x < monster[i].x < self.x+(distance*1.25):
+                    if self.y-(distance*0.75) < monster[i].y < self.y+(distance*0.75):
+                        monster[i].x = random.randrange(2000)
+                        monster[i].y = random.randrange(2000)
+                        print('kill7')
+
     def draw(self):
         if self.action == 1:
             self.image.clip_draw(self.frame % 4 * 50, self.dir * 50, 50, 50, 400, 300)
@@ -140,7 +196,7 @@ class Hero:
 
 
 def enter():
-    global paladin, wall, monster, ui, music
+    global paladin, wall, monster, music
     paladin = Hero()
     wall = Wall()
     for i in range(100):
@@ -186,6 +242,7 @@ def handle_events():
                 paladin.right = 1
                 paladin.action = 1
             elif event.key == SDLK_a:
+                paladin.attack()
                 pass
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_DOWN:
@@ -359,6 +416,7 @@ class Monster:
         self.dir = 0
         self.attack = 0
         self.damage = 5
+        self.die = False
 
         self.left = 0
         self.right = 0
@@ -367,42 +425,45 @@ class Monster:
 
     def update(self):
         global paladin
-        if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 200:
-            self.state = 1
-            if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 30:
-                self.attack += 1
-                if self.attack > 50:
-                    self.attack = 0
-                    paladin.hp -= self.damage
-        else:
-            self.state = 0
-            self.attack = 0
-
-        if self.state == 1:
-            if paladin.x < self.x:
-                self.x -= 1
-                self.left = 1
-                self.right = 0
-            elif paladin.x > self.x:
-                self.x += 1
-                self.left = 0
-                self.right = 1
-            else:
-                self.left = 0
-                self.right = 0
-            if paladin.y < self.y:
-                self.y -= 1
-                self.up = 0
-                self.down = 1
-            elif paladin.y > self.y:
-                self.y += 1
-                self.up = 1
-                self.down = 0
-            else:
-                self.up = 0
-                self.down = 0
-        else:
+        if self.die:
             pass
+        else:
+            if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 200:
+                self.state = 1
+                if math.sqrt(math.pow(paladin.x - self.x, 2.0) + math.pow(paladin.y - self.y, 2.0)) < 30:
+                    self.attack += 1
+                    if self.attack > 50:
+                        self.attack = 0
+                        paladin.hp -= self.damage
+            else:
+                self.state = 0
+                self.attack = 0
+
+            if self.state == 1:
+                if paladin.x < self.x:
+                    self.x -= 1
+                    self.left = 1
+                    self.right = 0
+                elif paladin.x > self.x:
+                    self.x += 1
+                    self.left = 0
+                    self.right = 1
+                else:
+                    self.left = 0
+                    self.right = 0
+                if paladin.y < self.y:
+                    self.y -= 1
+                    self.up = 0
+                    self.down = 1
+                elif paladin.y > self.y:
+                    self.y += 1
+                    self.up = 1
+                    self.down = 0
+                else:
+                    self.up = 0
+                    self.down = 0
+            else:
+                pass
 
     def draw(self):
         global paladin
