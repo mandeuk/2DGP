@@ -76,7 +76,8 @@ def open_canvas(w=int(800), h=int(600), sync=False):
     update_canvas()
     clear_canvas()
     update_canvas()
-    debug_font = load_font('ConsolaMalgun.TTF', 16)
+    #debug_font = load_font('ConsolaMalgun.TTF', 16)
+    debug_font = load_font('GodoM.TTF', 16)
 
 def show_lattice():
     global lattice_on
@@ -149,7 +150,7 @@ def print_fps():
 def debug_print(str):
     global canvas_height
     global debug_font
-    debug_font.draw(0, canvas_height - 10, str, (0,255,0))
+    debug_font.draw_unicode(0, canvas_height - 10, str, (0,255,0))
 
 class Event:
     """Pico2D Event Class"""

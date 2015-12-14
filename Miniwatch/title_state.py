@@ -11,6 +11,7 @@ button = None
 mouse_x = 0
 mouse_y = 0
 
+
 class Button:
     def __init__(self):
         self.image = load_image('Resource\Title\mainbutton.png')
@@ -66,6 +67,10 @@ def handle_events():
         elif event.type == SDL_MOUSEMOTION:
             mouse_x = event.x
             mouse_y = event.y
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_SPACE):
+            game_framework.change_state(main_state)
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
+            game_framework.quit()
         if (event.type, event.button) == (SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT):
             if button.start:
                 button.clicksound.play(1)
