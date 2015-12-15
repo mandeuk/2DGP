@@ -170,8 +170,8 @@ def enter():
 
 def exit():
     global paladin, wall, music
-    del(paladin)
-    del(wall)
+    #del(paladin)
+    #del(wall)
     music = None
 
 
@@ -269,6 +269,14 @@ def Crashcheck(): #벽과의 충돌체크
     Cy = int(paladin.y/32)
     for y in range(Cy-1, Cy+2):
         for x in range(Cx-1, Cx+2):
+            if x < 0:
+                x = 0
+            elif x > 99:
+                x = 99
+            if y < 0:
+                y = 0
+            elif y > 99:
+                y = 99
             if wall.tilestate[y][x] < '50':
                 pass
             else:
@@ -297,7 +305,15 @@ def Crashcheck(): #벽과의 충돌체크
         By = int(monster[i].y/32)
         for y in range(By-1, By+2):
             for x in range(Bx-1, Bx+2):
-                if wall.tilestate[y][x] < '50':
+                if x < 0:
+                    x = 0
+                elif x > 99:
+                    x = 99
+                if y < 0:
+                    y = 0
+                elif y > 99:
+                    y = 99
+                if int(wall.tilestate[y][x]) < int('50'):
                     pass
                 else:
                     if x < Bx and y < By:
